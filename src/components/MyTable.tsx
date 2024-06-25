@@ -11,25 +11,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@radix-ui/react-checkbox";
+
+import Task from ".././models/Task";
+import TaskEntry from "./TaskEntry";
 import { Button } from "./ui/button";
 
 const MyTable = () => {
-  const removeLastTask = () => {
-    setTasks(tasks.slice(0, -1));
-  };
-  const [tasks, setTasks] = useState([
+  const [tasks, setTasks] = useState<Task[]>([
     {
-      task: "1",
+      id: 1,
       title: "Wyrzucić śmieci",
-      status: "Pending",
+      status: "inprogress",
       priority: "High",
     },
   ]);
 
-  const [newTask, setNewTask] = useState({
-    task: "",
+  const [newTask, setNewTask] = useState<Task>({
+    id: 0,
     title: "",
-    status: "Pending",
+    status: "inprogress",
     priority: "Medium",
   });
 
@@ -40,14 +40,26 @@ const MyTable = () => {
 
   const addNewTask = () => {
     if (newTask.title.trim()) {
-      setTasks([...tasks, { ...newTask, task: `${tasks.length + 1}` }]);
+      setTasks([...tasks, { ...newTask, id: tasks.length + 1 }]);
       setNewTask({
-        task: "",
+        id: 0,
         title: "",
-        status: "Pending",
+        status: "inprogress",
         priority: "Medium",
       });
     }
+  };
+
+  const updateTask = (id: number, updatedTask: Task) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? updatedTask : task
+    );
+    setTasks(updatedTasks);
+  };
+
+  const deleteTask = (id: number) => {
+    alert("Moim zdaniem jest usunac taks o id " + id);
+    //Shine bright like a diamond
   };
 
   return (
@@ -77,26 +89,16 @@ const MyTable = () => {
           </TableHeader>
           <TableBody>
             {tasks.map((task) => (
-              <TableRow key={task.task}>
-                <TableCell className="font-medium">
-                  <Checkbox />
-                  {task.task}
-                </TableCell>
-                <TableCell>{task.title}</TableCell>
-                <TableCell className="text-right">{task.status}</TableCell>
-                <TableCell className="text-right">{task.priority}</TableCell>
-                <TableCell className="text-center">
-                  <Button variant="outline">Edit</Button>
-                  <Button onClick={removeLastTask} variant="outline">
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
+              <TaskEntry
+                task={task}
+                updateTask={updateTask}
+                deleteTask={deleteTask}
+              ></TaskEntry>
             ))}
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={2}>Total tasks to complete:</TableCell>
+              <TableCell colSpan={2}>Total tasks:</TableCell>
               <TableCell className="text-right">{tasks.length}</TableCell>
             </TableRow>
           </TableFooter>
