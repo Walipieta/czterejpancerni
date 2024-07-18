@@ -20,7 +20,7 @@ const TaskEntry = ({
   updateTask,
 }: {
   task: Task;
-  deleteTask: (id: number) => void;
+  deleteTask: (id: number, deletedTasks: Task) => void;
   updateTask: (id: number, updatedTask: Task) => void;
 }) => {
   return (
@@ -59,7 +59,14 @@ const TaskEntry = ({
           </Button>
         )}
 
-        <Button onClick={() => deleteTask(task.id)} variant="outline">
+        <Button
+          onClick={() =>
+            deleteTask(task.id, {
+              ...task,
+            })
+          }
+          variant="outline"
+        >
           Delete
         </Button>
       </TableCell>

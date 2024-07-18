@@ -58,8 +58,8 @@ const MyTable = () => {
   };
 
   const deleteTask = (id: number) => {
-    alert("Moim zdaniem jest usunac taks o id " + id);
-    //Shine bright like a diamond
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
   };
 
   return (
