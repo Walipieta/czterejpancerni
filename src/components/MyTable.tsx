@@ -20,17 +20,27 @@ const MyTable = () => {
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: 1,
-      title: "Wyrzucić śmieci",
+      title: "Przykładowe zadanie",
+      status: "inprogress",
+      priority: "High",
+    },
+    {
+      id: 2,
+      title: "Przykładowe zadanie 2",
+      status: "inprogress",
+      priority: "High",
+    },
+    {
+      id: 3,
+      title: "Przykładowe zadanie 3",
       status: "inprogress",
       priority: "High",
     },
   ]);
 
   const [newTask, setNewTask] = useState<Task>({
-    id: 0,
+    ...tasks[0],
     title: "",
-    status: "inprogress",
-    priority: "Medium",
   });
 
   const handleInputChange = (e: any) => {
@@ -39,14 +49,10 @@ const MyTable = () => {
   };
 
   const addNewTask = () => {
+    const lastTask = tasks[tasks.length - 1];
     if (newTask.title.trim()) {
-      setTasks([...tasks, { ...newTask, id: tasks.length + 1 }]);
-      setNewTask({
-        id: 0,
-        title: "",
-        status: "inprogress",
-        priority: "Medium",
-      });
+      setTasks([...tasks, { ...newTask, id: lastTask.id + 1 }]);
+      setNewTask({ ...newTask, title: "" });
     }
   };
 
@@ -74,6 +80,7 @@ const MyTable = () => {
             onChange={handleInputChange}
             className="border p-2 mr-2"
           />
+
           <Button onClick={addNewTask}>Add Task</Button>
         </div>
         <Table>
@@ -109,3 +116,11 @@ const MyTable = () => {
 };
 
 export default MyTable;
+
+/*
+NOTATKI
+
+
+const [zmienna, setZmienna] = useState("");
+<textarea value={zmienna} onChange={(e) => setZmienna(e.target.value)}></textarea>
+*/
