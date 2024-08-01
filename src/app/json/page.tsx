@@ -23,6 +23,7 @@ export default function Dawid() {
 
   const ButtonOnClick = () => {
     setTasks(JSON.parse(poleTekstu));
+    localStorage.setItem("korwin", poleTekstu);
   };
 
   return (
