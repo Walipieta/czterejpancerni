@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,62 +10,67 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import Task from ".././models/Task";
 import TaskEntry from "./TaskEntry";
 import { Button } from "./ui/button";
+import TaskEntryPlaceholder from "@/components/TaskEntryPlaceholder";
+import { DatabaseService } from "@/services/DatabaseService";
+import TaskItem from "./ui/TaskItem";
 
 const MyTable = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: "Przykładowe zadanie",
-      status: "inprogress",
-      priority: "High",
-    },
-    {
-      id: 2,
-      title: "Przykładowe zadanie 2",
-      status: "inprogress",
-      priority: "High",
-    },
-    {
-      id: 3,
-      title: "Przykładowe zadanie 3",
-      status: "inprogress",
-      priority: "High",
-    },
-  ]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // const storedTasks = localStorage.getItem("korwin");
+  // if (storedTasks == null) return;
+  // setTasks(JSON.parse(storedTasks));
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setTasks(await DatabaseService.readTasks());
+      setIsLoading(false);
+    };
+    fetchTasks();
+  }, []);
 
   const [newTask, setNewTask] = useState<Task>({
-    ...tasks[0],
+    id: "",
+    status: "inprogress",
+    priority: "low",
     title: "",
   });
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
-    setNewTask({ ...newTask, [name]: value });
+    setNewTask({ ...newTask, title: value });
   };
 
-  const addNewTask = () => {
-    const lastTask = tasks[tasks.length - 1];
+  const updateTasksList = (updatedTasks: any) => {
+    setTasks(updatedTasks);
+    //localStorage.setItem("korwin", JSON.stringify(updatedTasks));
+  };
+
+  const addNewTask = async () => {
+    const lastTaskId = tasks[tasks.length - 1]?.id ?? 0;
     if (newTask.title.trim()) {
-      setTasks([...tasks, { ...newTask, id: lastTask.id + 1 }]);
       setNewTask({ ...newTask, title: "" });
+      const docId = await DatabaseService.addDocument({ ...newTask });
+      updateTasksList([...tasks, { ...newTask, id: docId }]);
     }
   };
 
-  const updateTask = (id: number, updatedTask: Task) => {
+  const updateTask = (id: string, updatedTask: Task) => {
     const updatedTasks = tasks.map((task) =>
       task.id === id ? updatedTask : task
     );
-    setTasks(updatedTasks);
+    updateTasksList(updatedTasks);
   };
 
-  const deleteTask = (id: number) => {
+  const deleteTask = (id: string) => {
     const updatedTasks = tasks.filter((task) => task.id !== id);
-    setTasks(updatedTasks);
+    updateTasksList(updatedTasks);
   };
 
   return (
@@ -80,29 +85,40 @@ const MyTable = () => {
             onChange={handleInputChange}
             className="border p-2 mr-2"
           />
-
           <Button onClick={addNewTask}>Add Task</Button>
         </div>
         <Table>
-          <TableCaption>List of tasks ToDo</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Select</TableHead>
               <TableHead className="text-left w-[400px]">Title</TableHead>
-              <TableHead className="text-right w-[100px]">Status</TableHead>
-              <TableHead className="text-right w-[100px]">Priority</TableHead>
-              <TableHead className="text-center w-[100px]">Options</TableHead>
+              <TableHead className="text-left w-[100px]">Status</TableHead>
+              <TableHead className="text-left w-[100px]">Priority</TableHead>
+              <TableHead className="text-left w-[100px]">Options</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tasks.map((task) => (
-              <TaskEntry
-                task={task}
-                updateTask={updateTask}
-                deleteTask={deleteTask}
-              ></TaskEntry>
-            ))}
+            {isLoading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <TaskEntryPlaceholder key={i} />
+                ))
+              : tasks
+                  .sort((a, b) => {
+                    const priorities = ["high", "medium", "low"];
+                    return (
+                      priorities.indexOf(a.priority) -
+                      priorities.indexOf(b.priority)
+                    );
+                  })
+                  .map((task) => (
+                    <TaskEntry
+                      key={task.id}
+                      task={task}
+                      updateTask={updateTask}
+                      deleteTask={deleteTask}
+                    />
+                  ))}
           </TableBody>
+
           <TableFooter>
             <TableRow>
               <TableCell colSpan={2}>Total tasks:</TableCell>
@@ -116,11 +132,3 @@ const MyTable = () => {
 };
 
 export default MyTable;
-
-/*
-NOTATKI
-
-
-const [zmienna, setZmienna] = useState("");
-<textarea value={zmienna} onChange={(e) => setZmienna(e.target.value)}></textarea>
-*/

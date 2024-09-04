@@ -74,3 +74,20 @@
       @apply bg-background text-foreground;
     }
   }
+
+
+  .test {
+    background-color: red;
+  }
+
+  .task-inprogress {
+    background-color: white;
+  }
+
+  .task-completed {
+    background-color: greenyellow;
+  }
+
+  body {
+    background-color: #000000FF;
+  }

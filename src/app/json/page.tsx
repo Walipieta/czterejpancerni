@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Task from "@/models/Task";
 import { Button } from "@/components/ui/button";
 
 export default function Dawid() {
-  const [tasks, setTasks] = useState<Task[]>([
+  const initialTasks: Task[] = [
     {
       id: 1,
       title: "Przykładowe zadanie",
@@ -17,12 +17,26 @@ export default function Dawid() {
       status: "inprogress",
       priority: "High",
     },
-  ]);
+  ];
+
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    const storedTasks = localStorage.getItem("korwin");
+    if (storedTasks) {
+      setPoleTekstu(storedTasks);
+      setTasks(JSON.parse(storedTasks));
+    } else {
+      localStorage.setItem("korwin", JSON.stringify(initialTasks));
+      setTasks(initialTasks);
+    }
+  }, []);
 
   const [poleTekstu, setPoleTekstu] = useState(JSON.stringify(tasks));
 
   const ButtonOnClick = () => {
-    setTasks(JSON.parse(poleTekstu));
+    const updatedTasks = JSON.parse(poleTekstu);
+    setTasks(updatedTasks);
     localStorage.setItem("korwin", poleTekstu);
   };
 
@@ -40,11 +54,11 @@ export default function Dawid() {
         <Button onClick={ButtonOnClick}>Aktualizuj wszystkie taski</Button>
 
         <h2 className="mt-4">Lista zadań</h2>
-        {tasks.map((task) => (
-          <div key={task.id} className="m-4">
-            <p>{task.title}</p>
-            <p>{task.priority}</p>
-            <p>{task.status}</p>
+        {tasks.map((setTask) => (
+          <div key={setTask.id} className="m-4">
+            <p>{setTask.title}</p>
+            <p>{setTask.priority}</p>
+            <p>{setTask.status}</p>
           </div>
         ))}
       </section>

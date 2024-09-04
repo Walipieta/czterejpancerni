@@ -1,8 +1,8 @@
 interface Task {
-    id: number;
+    id: string;
     title: string;
     status: "inprogress" | "completed";
-    priority: string;
+    priority: "high" | "low" | "medium"
 }
 
 
